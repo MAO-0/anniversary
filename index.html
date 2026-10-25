@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>我们的纪念日</title>
+  <meta name="description" content="一个需要暗号才能进入的私密页面" />
+  <meta name="robots" content="noindex, nofollow, noarchive" />
+  <meta name="theme-color" content="#150f1e" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💞</text></svg>" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body class="is-locked">
+  <div class="hearts" id="hearts" aria-hidden="true"></div>
+
+  <!-- 解锁页：没有正确暗号时，只显示这一屏 -->
+  <section class="lock" id="lock">
+    <div class="lock__card">
+      <div class="lock__emoji" aria-hidden="true">🔒</div>
+      <h1 class="lock__title">我们的纪念日</h1>
+      <p class="lock__sub" id="lock-sub">输入暗号才能进来看</p>
+
+      <form class="lock__form" id="lock-form">
+        <input type="password" id="lock-input" placeholder="暗号" autocomplete="current-password"
+               aria-label="暗号" enterkeyhint="go" />
+        <button type="submit" id="lock-btn">进入</button>
+      </form>
+
+      <label class="lock__remember">
+        <input type="checkbox" id="lock-remember" />
+        在这台设备上记住（下次免输暗号）
+      </label>
+
+      <p class="lock__hint" id="lock-hint" hidden></p>
+      <p class="lock__error" id="lock-error" role="alert"></p>
+
+      <p class="lock__foot" id="lock-foot">
+        内容在浏览器本地解密，服务器上只有密文。<br />
+        忘记暗号就解不开了，请自己留一份明文。
+      </p>
+    </div>
+  </section>
+
+  <main>
+    <!-- 主计数器 -->
+    <section class="hero">
+      <p class="hero__slogan" id="slogan"></p>
+      <h1 class="hero__names">
+        <span id="name-me"></span>
+        <span class="hero__heart" aria-hidden="true">♥</span>
+        <span id="name-you"></span>
+      </h1>
+
+      <div class="counter">
+        <p class="counter__label">我们已经在一起</p>
+        <p class="counter__days"><span id="days">—</span><em>天</em></p>
+        <p class="counter__clock" id="clock">00:00:00</p>
+        <p class="counter__since" id="since"></p>
+      </div>
+    </section>
+
+    <!-- 下一个纪念日 -->
+    <section class="panel reveal">
+      <p class="panel__kicker">下一个纪念日</p>
+      <div class="next">
+        <div class="next__emoji" id="next-emoji">🎉</div>
+        <div class="next__body">
+          <h2 class="next__title" id="next-title">—</h2>
+          <p class="next__date" id="next-date"></p>
+          <p class="next__note" id="next-note"></p>
+        </div>
+        <div class="next__count">
+          <span id="next-days">—</span>
+          <small id="next-unit">天</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- 里程碑 -->
+    <section class="panel reveal" id="milestone-panel" hidden>
+      <p class="panel__kicker">下一个里程碑</p>
+      <p class="milestone__text" id="milestone-text"></p>
+      <p class="milestone__sub" id="milestone-sub"></p>
+    </section>
+
+    <!-- 时间轴 -->
+    <section class="panel reveal" id="timeline-panel" hidden>
+      <h2 class="panel__title">我们的时间轴</h2>
+      <ol class="timeline" id="timeline"></ol>
+    </section>
+
+    <!-- 全部纪念日 -->
+    <section class="panel reveal">
+      <h2 class="panel__title">所有纪念日</h2>
+      <div class="grid" id="grid"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p class="footer__quote" id="quote"></p>
+    <p class="footer__made">Made with ♥</p>
+  </footer>
+
+  <script src="assets/crypto.js"></script>
+  <script src="secret.js"></script>
+  <script src="assets/main.js"></script>
+  <script src="assets/gate.js"></script>
+</body>
+</html>
