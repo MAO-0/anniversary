@@ -1,6 +1,6 @@
 /* ============================================================
-   纪念日网站 · 解锁控制
-   没有正确暗号之前，页面上不会出现任何内容。
+   私密页面 · 解锁控制
+   密码正确之前，页面上不会出现任何内容。
    ============================================================ */
 
 (function () {
@@ -20,6 +20,7 @@
   var remember = $("lock-remember");
   var errorBox = $("lock-error");
   var sub = $("lock-sub");
+  var foot = $("lock-foot");
 
   function store(key, value) {
     try { window.localStorage.setItem(key, value); } catch (e) { /* 隐私模式等，忽略 */ }
@@ -43,17 +44,34 @@
     errorBox.classList.remove("is-bad");
   }
 
+  function showSub(msg) {
+    sub.textContent = msg;
+    sub.hidden = false;
+  }
+
+  function showFoot(msg) {
+    foot.textContent = msg;
+    foot.hidden = false;
+  }
+
   function busy(on) {
     button.disabled = on;
     input.disabled = on;
-    button.textContent = on ? "解锁中…" : "进入";
+    button.textContent = on ? "验证中…" : "进入";
   }
 
+  /* 密码正确之后：显示内容 + 起背景音乐 */
   function enter(cfg) {
     body.classList.remove("is-locked");
     lock.hidden = true;
     window.scrollTo(0, 0);
     if (typeof window.startSite === "function") window.startSite(cfg);
+
+    if (window.SiteMusic) {
+      window.SiteMusic.mount();
+      window.SiteMusic.play();
+    }
+
     // 解锁后补一次滚动淡入（display:none 期间观察器不会触发）
     setTimeout(function () {
       var items = document.querySelectorAll(".reveal");
@@ -70,7 +88,7 @@
     return cfg;
   }
 
-  /* 用暗号解锁 */
+  /* 用密码解锁 */
   function unlockWithPassword(password, rememberMe) {
     return C.decrypt(window.ENCRYPTED_DATA, password).then(function (res) {
       var cfg = parse(res.text);
@@ -87,7 +105,7 @@
     });
   }
 
-  /* 用本机记住的密钥解锁（不用重新输暗号） */
+  /* 用本机记住的密钥解锁（不用重新输密码） */
   function unlockWithStoredKey() {
     var raw = read(KEY_STORE);
     var fp = read(FP_STORE);
@@ -103,7 +121,7 @@
     });
   }
 
-  /* 钥匙链接：#k=暗号 */
+  /* 钥匙链接：#k=密码 */
   function passwordFromHash() {
     var m = /[#&]k=([^&]+)/.exec(window.location.hash || "");
     if (!m) return null;
@@ -120,23 +138,23 @@
 
   function init() {
     if (!window.ENCRYPTED_DATA || !window.ENCRYPTED_DATA.ct) {
-      sub.textContent = "还没生成加密内容";
+      showSub("暂时不可用");
       form.hidden = true;
-      showError("找不到 secret.js。请先用「加密工具.html」生成，再上传到仓库。");
-      $("lock-foot").hidden = false;
+      showError("找不到内容文件。");
+      showFoot("如果你是这个页面的主人：请先在本机用「加密工具.html」生成 secret.js，再上传到仓库。");
       return;
     }
 
     if (window.ENCRYPTED_DATA.hint) {
       var hint = $("lock-hint");
-      hint.textContent = "提示：" + window.ENCRYPTED_DATA.hint;
+      hint.textContent = window.ENCRYPTED_DATA.hint;
       hint.hidden = false;
     }
 
     if (!window.crypto || !window.crypto.subtle) {
-      sub.textContent = "这个地址打不开";
+      showSub("当前地址无法解密");
       form.hidden = true;
-      showError("浏览器在这个地址下禁用了加密接口。请用 https 网址打开（GitHub Pages 的网址就行），局域网 http 地址不行。");
+      showError("请用 https 网址打开这个页面。");
       return;
     }
 
@@ -149,7 +167,7 @@
         .catch(function () {
           busy(false);
           stripHash();
-          showError("这条钥匙链接已经失效（暗号可能换过了），请手动输入暗号。");
+          showError("链接已失效，请手动输入密码。");
         });
       return;
     }
@@ -167,7 +185,7 @@
   form.addEventListener("submit", function (e) {
     e.preventDefault();
     var password = input.value;
-    if (!password) { showError("请输入暗号"); input.focus(); return; }
+    if (!password) { showError("请输入密码"); input.focus(); return; }
 
     clearError();
     busy(true);
@@ -177,7 +195,7 @@
       input.select();
       showError(err && err.message && err.message.indexOf("加密接口") >= 0
         ? err.message
-        : "暗号不对，再想想？");
+        : "密码不正确");
     });
   });
 

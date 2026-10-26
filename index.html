@@ -3,41 +3,43 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>我们的纪念日</title>
-  <meta name="description" content="一个需要暗号才能进入的私密页面" />
+  <title>私密页面</title>
+  <meta name="description" content="请输入密码后查看" />
   <meta name="robots" content="noindex, nofollow, noarchive" />
   <meta name="theme-color" content="#150f1e" />
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💞</text></svg>" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>" />
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+  <link rel="manifest" href="manifest.webmanifest" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="纪念日" />
   <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body class="is-locked">
   <div class="hearts" id="hearts" aria-hidden="true"></div>
 
-  <!-- 解锁页：没有正确暗号时，只显示这一屏 -->
+  <!-- 解锁页：密码正确之前只显示这一屏，内容完全不渲染 -->
   <section class="lock" id="lock">
     <div class="lock__card">
-      <div class="lock__emoji" aria-hidden="true">🔒</div>
-      <h1 class="lock__title">我们的纪念日</h1>
-      <p class="lock__sub" id="lock-sub">输入暗号才能进来看</p>
+      <div class="lock__icon" aria-hidden="true">🔒</div>
+      <h1 class="lock__title">请输入密码</h1>
+      <p class="lock__sub" id="lock-sub" hidden></p>
 
       <form class="lock__form" id="lock-form">
-        <input type="password" id="lock-input" placeholder="暗号" autocomplete="current-password"
-               aria-label="暗号" enterkeyhint="go" />
+        <input type="password" id="lock-input" placeholder="密码" autocomplete="current-password"
+               aria-label="密码" enterkeyhint="go" />
         <button type="submit" id="lock-btn">进入</button>
       </form>
 
       <label class="lock__remember">
         <input type="checkbox" id="lock-remember" />
-        在这台设备上记住（下次免输暗号）
+        在此设备上记住
       </label>
 
       <p class="lock__hint" id="lock-hint" hidden></p>
       <p class="lock__error" id="lock-error" role="alert"></p>
-
-      <p class="lock__foot" id="lock-foot">
-        内容在浏览器本地解密，服务器上只有密文。<br />
-        忘记暗号就解不开了，请自己留一份明文。
-      </p>
+      <p class="lock__foot" id="lock-foot" hidden></p>
     </div>
   </section>
 
@@ -103,7 +105,14 @@
 
   <script src="assets/crypto.js"></script>
   <script src="secret.js"></script>
+  <script src="assets/music.js"></script>
   <script src="assets/main.js"></script>
   <script src="assets/gate.js"></script>
+  <script>
+    // 只有 https（GitHub Pages）下才注册 Service Worker；本地双击打开会跳过
+    if (location.protocol === "https:" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("sw.js").catch(function () {});
+    }
+  </script>
 </body>
 </html>

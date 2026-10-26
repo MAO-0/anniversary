@@ -507,29 +507,32 @@ body.is-locked .lock { display: flex; }
   -webkit-backdrop-filter: blur(16px);
 }
 
-.lock__emoji {
-  font-size: 2.1rem;
+.lock__icon {
+  font-size: 1.5rem;
   line-height: 1;
-  filter: drop-shadow(0 10px 24px rgba(255, 130, 165, 0.28));
+  opacity: 0.8;
 }
 
 .lock__title {
-  margin: 16px 0 8px;
-  font-size: 1.15rem;
-  font-weight: 600;
-  letter-spacing: 0.16em;
-  text-indent: 0.16em;
+  margin: 14px 0 0;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: 0.18em;
+  text-indent: 0.18em;
+  color: rgba(246, 239, 248, 0.92);
 }
 
 .lock__sub {
-  margin: 0 0 24px;
-  font-size: 0.86rem;
+  margin: 10px 0 0;
+  font-size: 0.84rem;
+  line-height: 1.6;
   color: var(--muted);
 }
 
 .lock__form {
   display: flex;
   gap: 10px;
+  margin-top: 22px;
 }
 
 .lock__form input {
@@ -547,8 +550,8 @@ body.is-locked .lock { display: flex; }
 
 .lock__form input:focus {
   outline: none;
-  border-color: rgba(255, 157, 176, 0.6);
-  box-shadow: 0 0 0 3px rgba(255, 157, 176, 0.13);
+  border-color: rgba(255, 255, 255, 0.34);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.08);
 }
 
 .lock__form button {
@@ -556,16 +559,16 @@ body.is-locked .lock { display: flex; }
   padding: 12px 20px;
   font-family: var(--font);
   font-size: 0.95rem;
-  font-weight: 600;
-  color: #2b1220;
-  background: linear-gradient(135deg, var(--rose-soft), var(--rose));
+  font-weight: 500;
+  color: #14101a;
+  background: #ece7ef;
   border: 0;
   border-radius: 12px;
   cursor: pointer;
-  transition: transform 0.15s ease, filter 0.2s ease;
+  transition: transform 0.15s ease, background 0.2s ease;
 }
 
-.lock__form button:hover:not(:disabled) { filter: brightness(1.06); }
+.lock__form button:hover:not(:disabled) { background: #ffffff; }
 .lock__form button:active:not(:disabled) { transform: scale(0.97); }
 .lock__form button:disabled { opacity: 0.55; cursor: default; }
 
@@ -581,7 +584,7 @@ body.is-locked .lock { display: flex; }
   user-select: none;
 }
 
-.lock__remember input { accent-color: var(--rose); }
+.lock__remember input { accent-color: #b9b0c0; }
 
 .lock__hint {
   margin: 18px 0 0;
@@ -627,4 +630,42 @@ body.is-locked .lock { display: flex; }
 
 @media (prefers-reduced-motion: reduce) {
   .lock__error.is-bad { animation: none; }
+}
+
+/* ============================================================
+   背景音乐开关（右下角，解锁后才出现）
+   ============================================================ */
+
+.music-btn {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 6;
+  width: 40px;
+  height: 40px;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  font-size: 17px;
+  line-height: 1;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  cursor: pointer;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.music-btn.is-on { display: flex; }
+.music-btn:hover { background: rgba(255, 255, 255, 0.16); }
+.music-btn:active { transform: scale(0.94); }
+
+/* 没解锁之前不显示（解锁页上不要出现多余元素） */
+body.is-locked .music-btn { display: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .music-btn { transition: none; }
 }
