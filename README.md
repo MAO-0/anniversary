@@ -32,16 +32,16 @@ anniversary/
 │   ├── icon-192.png / icon-512.png / apple-touch-icon.png   主屏图标
 │   └── style.css       样式（换配色改最上面的 :root）
 ├── manifest.webmanifest 主屏图标 + 名称配置
-├── 加密工具.html         ★ 在本机生成 secret.js 的工具，双击就能用
 ├── .nojekyll
 └── README.md
 ```
 
-> ⚠️ **《加密工具.html》绝对不要上传到 GitHub**：它里面的模板就是你们的明文内容（名字、生日、日期），传上去等于公开。它只在本机用来生成 `secret.js`。
+> 📁 **这个文件夹里的东西全部都可以公开上传**——里面没有任何明文（`secret.js` 只有密文）。
+> ⚠️ 生成内容用的《加密工具.html》在**上一层**（和 `anniversary` 并排放着），它含明文，**永远不要上传**。
 
 ## 更新内容：三步
 
-1. 双击打开 `加密工具.html`（纯本地运行，密码不会发到任何地方）
+1. 双击打开**上一层文件夹**里的 `加密工具.html`（纯本地运行，密码不会发到任何地方）
 2. 改里面的内容 → 填入和现在**一样的密码** → 点「生成加密文件」
    - 工具会顺手用同一个密码解一遍做校验，并告诉你解析出的名字和天数，防止改坏
    - 内容会自动存在这台电脑的浏览器里，下次打开还在
@@ -125,9 +125,9 @@ anniversary/
 ## 发布到 GitHub Pages（约 5 分钟）
 
 1. 登录 [github.com](https://github.com)，**+ → New repository**，名字填 `anniversary`，选 **Public**，Create
-2. 点 **uploading an existing file**，把 `index.html`、`secret.js`、`README.md`、`manifest.webmanifest` 和 `assets` 文件夹拖进去，Commit
-   - `assets` 文件夹要一起拖（样式和脚本都在里面）
-   - `.nojekyll` 传不传都行；`加密工具.html` **不要传**（里面有明文内容）
+2. 点 **uploading an existing file**，把 `anniversary` 文件夹里的东西**全部**拖进去（同名文件会自动覆盖），Commit
+   - `assets` 文件夹要一起拖（样式、脚本、音乐、图标都在里面）
+   - `.nojekyll` 是隐藏文件，选不到也没关系
 3. **Settings → Pages**：Source 选 `Deploy from a branch`，Branch 选 `main`、目录 `/ (root)`，Save
 4. 等 1～2 分钟刷新该页，拿到网址：`https://你的用户名.github.io/anniversary/`
 5. 首次打开输一次密码（勾「记住」），或者直接在工具里复制钥匙链接发给对方
