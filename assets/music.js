@@ -34,6 +34,7 @@ window.SiteMusic = (function () {
   var failed = false;
   var fadeTimer = null;
   var gestureBound = false;
+  var gestureHandlers = [];
 
   function toSeconds(v) {
     if (typeof v === "number" && isFinite(v)) return Math.max(0, v);
@@ -72,7 +73,7 @@ window.SiteMusic = (function () {
     audio.volume = 0; // 先静音，等 play 成功后再渐入
     audio.src = cfg.file;
     audio.addEventListener("error", function () { failed = true; hide(); });
-    audio.addEventListener("play", function () { icon(true); });
+    audio.addEventListener("play", function () { icon(true); unbindGesture(); });
     audio.addEventListener("pause", function () { icon(false); });
     return audio;
   }
@@ -155,23 +156,34 @@ window.SiteMusic = (function () {
     }
   }
 
-  /* 被自动播放拦下时，第一次点击/按键就立刻开始 */
+  /* 被自动播放拦下时，第一次触摸/点击/按键就立刻开始。
+     重要：触摸时 pointerdown 那一刻浏览器还没给"用户手势"资格
+     （触摸的资格在 pointerup / touchend 才生效），所以：
+     · 每个事件都试一次，直到真的播起来
+     · 只有播放真正开始后，才把监听撤掉 */
+  var gestureEvents = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
+
+  function unbindGesture() {
+    if (!gestureBound) return;
+    gestureBound = false;
+    gestureEvents.forEach(function (name, i) {
+      if (gestureHandlers[i]) document.removeEventListener(name, gestureHandlers[i], true);
+    });
+    gestureHandlers = [];
+  }
+
   function bindGestureStart() {
     if (gestureBound) return;
     gestureBound = true;
+    gestureHandlers = [];
 
-    var events = ["pointerdown", "touchstart", "touchend", "click", "keydown"];
-
-    function handler() {
-      events.forEach(function (name) {
-        document.removeEventListener(name, handler, true);
-      });
-      var a = ensure();
-      if (a && !a.paused) return; // 已经在播就不用再动
-      play();
-    }
-
-    events.forEach(function (name) {
+    gestureEvents.forEach(function (name) {
+      var handler = function () {
+        var a = ensure();
+        if (a && !a.paused) { unbindGesture(); return; }
+        play(); // 这一下不成功也没关系，下一个事件还会再试
+      };
+      gestureHandlers.push(handler);
       document.addEventListener(name, handler, true);
     });
   }
