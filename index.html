@@ -8,12 +8,6 @@
   <meta name="robots" content="noindex, nofollow, noarchive" />
   <meta name="theme-color" content="#150f1e" />
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🔒</text></svg>" />
-  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
-  <link rel="manifest" href="manifest.webmanifest" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="纪念日" />
   <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body class="is-locked">
@@ -108,11 +102,5 @@
   <script src="assets/music.js"></script>
   <script src="assets/main.js"></script>
   <script src="assets/gate.js"></script>
-  <script>
-    // 只有 https（GitHub Pages）下才注册 Service Worker；本地双击打开会跳过
-    if (location.protocol === "https:" && "serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js").catch(function () {});
-    }
-  </script>
 </body>
 </html>

@@ -67,10 +67,7 @@
     window.scrollTo(0, 0);
     if (typeof window.startSite === "function") window.startSite(cfg);
 
-    if (window.SiteMusic) {
-      window.SiteMusic.mount();
-      window.SiteMusic.play();
-    }
+    if (window.SiteMusic) window.SiteMusic.play();
 
     // 解锁后补一次滚动淡入（display:none 期间观察器不会触发）
     setTimeout(function () {
@@ -144,6 +141,9 @@
       showFoot("如果你是这个页面的主人：请先在本机用「加密工具.html」生成 secret.js，再上传到仓库。");
       return;
     }
+
+    // 一打开就尝试放背景音乐（音量渐入；被浏览器拦下的话，第一次点击/按键会自动开始）
+    if (window.SiteMusic) window.SiteMusic.autoStart();
 
     if (window.ENCRYPTED_DATA.hint) {
       var hint = $("lock-hint");
