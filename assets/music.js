@@ -3,11 +3,14 @@
    ------------------------------------------------------------
    打开网页就尝试自动播放，音量由小到大淡入（默认 2.5 秒到设定音量）。
 
-   浏览器的自动播放限制是硬规矩，所以实际表现是：
-   · 允许自动播放时（例如你常来这个站）
-       → 一打开就响
-   · 被拦下时 → 你第一次点/按页面任何地方（通常是点密码框）
-       → 立刻开始播，不用专门去点右下角按钮
+   浏览器（尤其 iPhone）的自动播放限制是硬规矩，所以实际表现是：
+   · 允许自动播放时 → 一打开就响
+   · 被拦下时 → 你第一次点/按页面任何地方就立刻开始播
+
+   为了让"第一次点"一定生效，这里做了两件事：
+   1) 点击监听在脚本加载时就挂好，不依赖其他文件是否更新
+   2) 点击的瞬间立刻调用 play()（不再等音频元数据加载完），
+      否则会丢掉"用户手势"，iOS 就会拒绝播放
 
    右下角的音符按钮随时可以暂停 / 继续。
    ============================================================ */
@@ -110,6 +113,22 @@ window.SiteMusic = (function () {
     }, 50);
   }
 
+  /* 跳到起点：能设就立刻设，不能设就等元数据到了再设（此时已经在播了） */
+  function seekToStart(a) {
+    var start = toSeconds(cfg.startAt);
+    if (start <= 0) return;
+
+    function jump() {
+      try {
+        if (Math.abs(a.currentTime - start) > 1.5) a.currentTime = start;
+      } catch (e) { /* 忽略 */ }
+    }
+
+    if (a.readyState >= 1) jump();
+    else a.addEventListener("loadedmetadata", jump, { once: true });
+  }
+
+  /* instant = true 表示手动点的继续：立刻到目标音量，不要再渐入 */
   function play(instant) {
     var a = ensure();
     if (!a) { hide(); return; }
@@ -119,29 +138,20 @@ window.SiteMusic = (function () {
     // 已经在播：只把音量补到目标值，不要重新跳回起点
     if (!a.paused) { fadeTo(target, instant ? 150 : 500); return; }
 
-    var start = toSeconds(cfg.startAt);
-    // 首次/自动播放：音量从 0 渐入；手动恢复播放：直接到目标音量，别让人等
+    // 首次/自动播放：音量从 0 渐入；手动继续：直接到目标音量
     if (cfg.fadeIn !== false) a.volume = instant ? target : 0;
 
-    function begin() {
-      if (start > 0 && Math.abs(a.currentTime - start) > 1.5) {
-        try { a.currentTime = start; } catch (e) { /* 还没准备好，忽略 */ }
-      }
-      var p = a.play();
-      if (p && p.then) {
-        p.then(function () {
-          fadeTo(target, instant ? 0 : (cfg.fadeMs || 2500));
-        }).catch(function () {
-          icon(false); // 被浏览器拦住了，等第一次点击/按键
-        });
-      }
-    }
+    // 关键：立刻调用 play()，保住"用户手势"这个资格
+    var p = a.play();
 
-    // 音频还没读到时长信息时，先等它一下再跳到起点
-    if (start > 0 && a.readyState < 1) {
-      a.addEventListener("loadedmetadata", begin, { once: true });
-    } else {
-      begin();
+    seekToStart(a);
+
+    if (p && p.then) {
+      p.then(function () {
+        fadeTo(target, instant ? 0 : (cfg.fadeMs || 2500));
+      }).catch(function () {
+        icon(false); // 被浏览器拦住了，等第一次点击/按键
+      });
     }
   }
 
@@ -150,21 +160,23 @@ window.SiteMusic = (function () {
     if (gestureBound) return;
     gestureBound = true;
 
+    var events = ["pointerdown", "touchstart", "touchend", "click", "keydown"];
+
     function handler() {
-      document.removeEventListener("pointerdown", handler, true);
-      document.removeEventListener("touchstart", handler, true);
-      document.removeEventListener("keydown", handler, true);
+      events.forEach(function (name) {
+        document.removeEventListener(name, handler, true);
+      });
       var a = ensure();
       if (a && !a.paused) return; // 已经在播就不用再动
       play();
     }
 
-    document.addEventListener("pointerdown", handler, true);
-    document.addEventListener("touchstart", handler, true);
-    document.addEventListener("keydown", handler, true);
+    events.forEach(function (name) {
+      document.addEventListener(name, handler, true);
+    });
   }
 
-  /* 页面一加载就调用：先试着直接播，播不了就等第一次交互 */
+  /* 页面加载时就调用；也可以由解锁逻辑再调一次（重复调用没影响） */
   function autoStart() {
     mount();
     play();
@@ -175,6 +187,14 @@ window.SiteMusic = (function () {
     var a = ensure();
     if (!a) return;
     if (a.paused) play(true); else a.pause();
+  }
+
+  /* 脚本一加载就把点击监听挂好：
+     这样即使别的文件还是浏览器缓存的旧版本，第一次点击也一定能起播 */
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", bindGestureStart);
+  } else {
+    bindGestureStart();
   }
 
   return {
